@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lace & Luxe Studio | Виртуальная примерка</title>
+    
+    <!-- Подключение шрифтов (Playfair Display для заголовков, Lato для текста) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ПЕРЕМЕННЫЕ И СБРОС --- */
+        :root {
+            --color-burgundy: #5D001E; /* Глубокий кутюрный бордо */
+            --color-gold: #C5A059;     /* Благородное золото */
+            --color-gold-light: #E5C580;
+            --color-white: #ffffff;
+            --color-gray-light: #F9F9F9;
+            --color-gray-dark: #2C2C2C;
+            --text-main: #333333;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Lato', sans-serif;
+            --transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-main);
+            background-color: var(--color-white);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-serif);
+            color: var(--color-burgundy);
+            font-weight: 700;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* --- КЛАССЫ АНИМАЦИИ (ZOOM IN ПРИ СКРОЛЛЕ) --- */
+        .reveal {
+            opacity: 0;
+            transform: scale(0.95) translateY(40px);
+            transition: all 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* --- НАВИГАЦИЯ (Sticky) --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 1.2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--color-burgundy);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .logo span {
+            color: var(--color-gold);
+            font-style: italic;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        nav a {
+            font-size: 0.8rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-gray-dark);
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--color-burgundy);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--color-gold);
+            transition: width 0.4s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            color: var(--color-burgundy);
+            cursor: pointer;
+        }
+
+        /* --- ГЛАВНЫЙ РАЗДЕЛ (HERO) --- */
+        .hero {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            overflow: hidden;
+            color: var(--color-white);
+        }
+
+        /* Анимация фона Hero */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(60, 0, 20, 0.4)), 
+                        url('https://images.unsplash.com/photo-1566174053879-31528523f8ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            animation: slowZoom 20s infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            color: var(--color-white);
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            letter-spacing: -1px;
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--color-gold-light);
+            margin-bottom: 50px;
+            max-width: 700px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            animation: fadeInUp 1.5s ease-out 0.3s backwards;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 50px;
+            background-color: transparent;
+            color: var(--color-white);
+            font-family: var(--font-serif);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border: 1px solid var(--color-gold);
+            transition: var(--transition);
+            font-size: 0.9rem;
+            animation: fadeInUp 1.5s ease-out 0.6s backwards;
+        }
+
+        .btn:hover {
+            background-color: var(--color-gold);
+            color: var(--color-white);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- О ПРИЛОЖЕНИИ --- */
+        .about {
+            padding: 100px 10%;
+            background-color: var(--color-white);
+            display: flex;
+            align-items: center;
+            gap: 80px;
+        }
+
+        .about-image {
+            flex: 1;
+            position: relative;
+        }
+
+        .about-image img {
+            box-shadow: 30px 30px 0 var(--color-gray-light);
+            transition: var(--transition);
+        }
+        
+        .about-image:hover img {
+            transform: scale(1.02);
+            box-shadow: 40px 40px 0 var(--color-gold);
+        }
+
+        .about-content {
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 2px;
+            background-color: var(--color-gold);
+            margin-top: 15px;
+        }
+
+        .about-content p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 25px;
+            font-weight: 300;
+            text-align: justify;
+        }
+
+        /* --- УСЛУГИ --- */
+        .services {
+            padding: 100px 5%;
+            background-color: var(--color-gray-light);
+            text-align: center;
+        }
+
+        .services p {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--color-gold);
+            font-size: 1.2rem;
+        }
+
+        .services-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            max-width: 1300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .service-card {
+            background: var(--color-white);
+            width: 350px;
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .service-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-bottom: 3px solid var(--color-gold);
+        }
+
+        .service-img-wrapper {
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .service-img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transition: transform 1s ease;
+        }
+        
+        .service-card:hover .service-img {
+            transform: scale(1.1);
+        }
+
+        .service-info {
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .service-info h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--color-burgundy);
+            letter-spacing: 1px;
+        }
+
+        .service-info p {
+            font-family: var(--font-sans);
+            font-style: normal;
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* --- КОНТАКТЫ --- */
+        .contact {
+            padding: 120px 20px;
+            background-color: var(--color-burgundy);
+            color: var(--color-white);
+            text-align: center;
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+            position: relative;
+        }
+
+        .contact h2 {
+            color: var(--color-gold);
+            margin-bottom: 30px;
+            font-size: 3rem;
+        }
+
+        .contact-box {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(93, 0, 30, 0.85);
+            padding: 60px;
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            backdrop-filter: blur(5px);
+            transition: var(--transition);
+        }
+        
+        .contact-box:hover {
+            transform: scale(1.02);
+            border-color: var(--color-gold);
+        }
+
+        .contact-text {
+            font-size: 1.2rem;
+            font-weight: 300;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+        }
+
+        .contact-highlight {
+            color: var(--color-gold);
+            font-family: var(--font-serif);
+            font-style: italic;
+            display: block;
+            margin-top: 30px;
+            font-size: 1.6rem;
+        }
+
+        /* --- ПОДВАЛ --- */
+        footer {
+            background-color: var(--color-gray-dark);
+            color: #999;
+            padding: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        footer span {
+            color: var(--color-gold);
+        }
+
+        /* --- АДАПТИВНОСТЬ --- */
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 3rem; }
+            .about { padding: 80px 5%; gap: 40px; }
+            .service-card { width: 45%; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 15px 20px; }
+            nav { display: none; }
+            .mobile-menu-btn { display: block; }
+
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1rem; }
+
+            .about { flex-direction: column; padding: 60px 20px; }
+            .about-image, .about-content { width: 100%; }
+            .section-title { font-size: 2.2rem; }
+
+            .services-container { flex-direction: column; align-items: center; }
+            .service-card { width: 100%; max-width: 400px; }
+            
+            .contact-box { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Навигация -->
+    <header>
+        <div class="logo">Lace & <span>Luxe</span> Studio</div>
+        <nav>
+            <ul>
+                <li><a href="#home">Главная</a></li>
+                <li><a href="#about">История</a></li>
+                <li><a href="#services">Услуги</a></li>
+                <li><a href="#contact">Облачный доступ</a></li>
+            </ul>
+        </nav>
+        <div class="mobile-menu-btn">☰</div>
+    </header>
+
+    <!-- Главный раздел -->
+    <section id="home" class="hero">
+        <h1>Ваша идеальная примерка</h1>
+        <p>От эскиза до фотосессии. <br>
+           Виртуальная примерка платьев, которая стирает границы между воображением и реальностью.</p>
+        <a href="#services" class="btn">Начать примерку</a>
+    </section>
+
+    <!-- Раздел "О приложении" -->
+    <section id="about" class="about reveal">
+        <div class="about-image">
+            <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="История создания приложения">
+        </div>
+        <div class="about-content">
+            <h2 class="section-title">О приложении</h2>
+            <p>
+                Мы создали Lace & Luxe Studio, чтобы стереть границы между физическим и цифровым миром высокой моды. Ателье и дизайнеры тратят огромные бюджеты на фотосессии, аренду студий и работу моделей. Мы решили перенести всю магию в браузер: теперь платье «оживает» сразу после загрузки эскиза или фото. 
+            </p>
+            <p>
+                Наше приложение позволяет дизайнерам и клиентам видеть будущее платье еще до того, как ножницы коснутся ткани. Это не просто примерка — это искусство создания образа, доступное в любой точке мира. Алгоритмы аккуратно подбирают посадку по выбранному типу фигуры, росту и настроению кадра: от мягкого дневного света до драматичного вечернего освещения.
+            </p>
+        </div>
+    </section>
+
+    <!-- Раздел Услуг -->
+    <section id="services" class="services">
+        <div class="reveal">
+            <h2 class="section-title">Возможности Приложения</h2>
+            <p style="margin-bottom: 20px;">Полный спектр услуг для создания вашего образа</p>
+        </div>
+        
+        <div class="services-container">
+            <!-- Услуга 1 -->
+            <div class="service-card reveal">
+                <div class="service-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="AR Примерка" class="service-img">
+                </div>
+                <div class="service-info">
+                    <h3>От эскиза до фотосессии</h3>
+                    <p>Превратите эскиз платья в готовую fashion-фотосессию за 60 секунд.</p>
+                </div>
+            </div>
+
+            <!-- Услуга 2 -->
+            <div class="service-card reveal">
+                <div class="service-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1537832816519-689ad163238b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Анализ ткани" class="service-img">
+                </div>
+                <div class="service-info">
+                    <h3>Просмотр в 360°</h3>
+                    <p>Вращайте модель, проверяйте детали со всех сторон. Создавайте кадры в движении, лёгкое кружение, шаг вперёд, поворот корпуса — как в настоящей фотосессии.</p>
+                </div>
+            </div>
+
+            <!-- Услуга 3 -->
+            <div class="service-card reveal">
+                <div class="service-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1504198458649-3128b932f49e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Подбор размера" class="service-img">
+                </div>
+                <div class="service-info">
+                    <h3>Виртуальная примерка по фото</h3>
+                    <p>Загружаете фото клиентки или модели, выбираете силуэт платья — сервис подстраивает посадку и пропорции фигуры.</p>
+                </div>
+            </div>
+
+            <!-- Услуга 4 -->
+            <div class="service-card reveal">
+                <div class="service-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Стилист" class="service-img">
+                </div>
+                <div class="service-info">
+                    <h3>Виртуальный Стилист</h3>
+                    <p>Персональные рекомендации по подбору аксессуаров к выбранному платью.</p>
+                </div>
+            </div>
+
+            <!-- Услуга 5 -->
+            <div class="service-card reveal">
+                <div class="service-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Коллекции" class="service-img">
+                </div>
+                <div class="service-info">
+                    <h3>Индивидуальная Настройка</h3>
+                    <p>Изменяйте цвет, ткань и детали платьев, чтобы создать идеальный образ.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Раздел Контактов -->
+    <section id="contact" class="contact reveal">
+        <div class="contact-box">
+            <h2>Доступ 24/7</h2>
+            <p class="contact-text">
+                Lace & Luxe Studio — это облачное решение. Вам не нужно приезжать в студию: все примерки происходят в вашем браузере.
+            </p>
+            <span class="contact-highlight">Где угодно. Когда угодно.</span>
+            <br>
+            <a href="mailto:hello@laceluxe.com" class="btn" style="border: 1px solid var(--color-gold); margin-top: 30px;">Связаться с нами</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2023 Lace & <span>Luxe</span> Studio. Все права защищены.</p>
+    </footer>
+
+    <!-- Скрипт для анимации появления при прокрутке -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+
+            const checkScroll = () => {
+                const triggerBottom = window.innerHeight * 0.85; // Анимация срабатывает, когда элемент на 85% вошел в экран
+
+                reveals.forEach(reveal => {
+                    const boxTop = reveal.getBoundingClientRect().top;
+                    if(boxTop < triggerBottom) {
+                        reveal.classList.add('active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', checkScroll);
+            checkScroll(); // Проверка при загрузке
+        });
+    </script>
+</body>
+</html>
